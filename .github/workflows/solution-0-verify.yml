@@ -1,0 +1,38 @@
+name: Solution_0 verify
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Verify generated certificates
+        run: |
+          set -eu
+          printf '\n\n' | sh Solution_0.sh > general.json
+          cp Solution_0.clcert general.clcert
+          printf '4\n6\n' | sh Solution_0.sh > small.json
+          cp Solution_0.clcert small.clcert
+          printf '0\n0\n' | sh Solution_0.sh > void.json
+          cp Solution_0.clcert void.clcert
+          python3 - <<'PY'
+          import json
+          cases=[
+            ("general.clcert",1,1,1,16,16),
+            ("small.clcert",1,1,1,4,6),
+            ("void.clcert",1,0,0,0,0),
+          ]
+          for p,fix,abs_,ze,n,b in cases:
+            d=json.load(open(p)); z=d["ZP"]; b0=d["B0"]
+            assert d["FIX"]==fix, (p,"FIX",d["FIX"])
+            assert d["ABS"]==abs_, (p,"ABS",d["ABS"])
+            assert d["ZE"]==ze, (p,"ZE",d["ZE"])
+            assert d["BUG"]==0 and d["PCC"]==1, (p,"BUG/PCC")
+            assert z[2]==0 and (z[0]+z[1])%2047==0, (p,"ZP",z)
+            assert b0["N"]==n and b0["B"]==b and b0["SELF"][0]==1, (p,"B0",b0)
+          print("Solution_0 certificates verified")
+          PY
