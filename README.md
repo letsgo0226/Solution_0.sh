@@ -37,3 +37,17 @@ Output:
 ```text
 Solution_0.clcert
 ```
+
+## Continuous Verification
+
+GitHub Actions runs `.github/workflows/solution-0-verify.yml` on push, pull request, and manual dispatch.
+
+It verifies three generated cases:
+
+```text
+N=16 B=16 -> FIX=1 ABS=1 ZE=1
+N=4  B=6  -> FIX=1 ABS=1 ZE=1
+N=0  B=0  -> FIX=1 ABS=0 ZE=0
+```
+
+The `N=0` case is the void boundary: it may close as a fixed point, but it is not counted as absolute zero entropy.
